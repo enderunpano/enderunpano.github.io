@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BİLİŞİM KULÜBÜ BAŞARDI!!</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Dikey ortalama */
+            height: 100vh; /* Tam yükseklik */
+            background-color: #f4f4f9;
+        }
+
+        .navbar {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            background-color: #007BFF;
+            padding: 15px;
+            font-size: 95%;
+            position: absolute; /* Navbar'ı sabitle */
+            top: 0; /* Üst kısımda konumlandır */
+        }
+
+        .logo {
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .center {
+            text-align: center;
+            margin-top: 72px; /* %10 yukarı çıkarıldı, navbar yüksekliği 80px'den 72px'e indirildi */
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .footer-text {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            text-align: left;
+            font-size: 110%;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">HUZUR ENDERUN</div>
+    </div>
+    <div class="center">
+        <h1>Huzur Enderun</h1>
+        <h2>Huzur Enderun Akıllı Pano</h2>
+        
+        <div class="buttons">
+            <button onclick="openNewWindow()">Giriş</button>
+            <button onclick="openSlideshow()">Slayt</button>
+        </div>
+    </div>
+
+    <div class="footer-text">
+        H.BİLAL KAYMAZ<br>
+        M.KAMİL SAYYOL<br>
+        A.EREN GÖK
+    </div>
+
+    <script>
+        function openNewWindow() {
+            window.open('newpage.html', '_blank');
+        }
+
+        function openSlideshow() {
+            window.open('slideshow.html', '_blank');
+        }
+    </script>
+</body>
+</html>

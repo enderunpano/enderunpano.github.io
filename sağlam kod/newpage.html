@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haftalık Okul Zili</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .navbar {
+            width: 100%;
+            display: flex;
+            justify-content: center; /* Ortada hizalandı */
+            align-items: center;
+            background-color: #007BFF;
+            padding: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-size: 110%;
+        }
+
+        .logo {
+            color: white;
+            font-size: 24px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 28px;
+            margin: 20px 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+        }
+
+        /* Diğer stil tanımları burada... */
+
+        /* Günlük alarm bölümü stilleri */
+        .day-section {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .day-section h2 {
+            font-size: 16px;
+            color: #fff;
+            background-color: #007BFF;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .alarm-inputs {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        input[type="time"] {
+            padding: 4px;
+            font-size: 12px;
+            width: 80px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .set-alarm-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .set-alarm-btn:hover {
+            background-color: #218838;
+        }
+
+        .alarm-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .alarm-item {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 80px;
+            font-size: 12px;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 4px 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">HUZUR ENDERUN</div>
+    </div>
+    <div class="container">
+        <h1>Haftalık Okul Zili Sistemi</h1>
+        <div class="clock" id="liveClock"></div>
+        <div id="alarmSections"></div>
+
+        <h2>Kayıtlı Alarmlar</h2>
+        <div class="alarm-list" id="alarmsList"></div>
+    </div>
+
+    <audio id="alarmSound" src="ceddin-deden-1080p.mp3" preload="auto"></audio>
+
+    <script>
+        const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'];
+        const maxAlarmsPerDay = 8; 
+        let alarms = JSON.parse(localStorage.getItem('alarms')) || Array.from({ length: 5 }, () => []);
+
+        function createAlarmSections() {
+            const alarmSections = document.getElementById('alarmSections');
+            days.forEach((day, dayIndex) => {
+                const daySection = document.createElement('div');
+                daySection.className = 'day-section';
+                daySection.innerHTML = `
+                    <h2>${day}</h2>
+                    <div class="alarm-inputs">
+                        ${Array.from({ length: maxAlarmsPerDay }, (_, i) => `
+                            <div>
+                                <input type="time" id="alarmTime-${dayIndex}-${i}" step="1">
+                                <button class="set-alarm-btn" onclick="setAlarm(${dayIndex}, ${i})">Kur</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                alarmSections.appendChild(daySection);
+            });
+            updateAlarmsList();
+        }
+
+        function setAlarm(dayIndex, alarmIndex) {
+            const alarmInput = document.getElementById(`alarmTime-${dayIndex}-${alarmIndex}`);
+            const timeValue = alarmInput.value;
+
+            if (timeValue) {
+                const [hours, minutes] = timeValue.split(':');
+                const alarmTime = {
+                    day: dayIndex,
+                    hour: parseInt(hours),
+                    minute: parseInt(minutes),
+                    id: new Date().getTime()
+                };
+
+                alarms[dayIndex].push(alarmTime);
+                localStorage.setItem('alarms', JSON.stringify(alarms));
+                alarmInput.value = '';
+
+                startAlarm(alarmTime); 
+                updateAlarmsList(); 
+            } 
+        }
+
+        function startAlarm(alarm) {
+            const now = new Date();
+            const alarmDate = new Date();
+            alarmDate.setHours(alarm.hour, alarm.minute, 0, 0);
+
+            const delay = alarmDate.getTime() - now.getTime();
+            if (delay >= 0) {
+                setTimeout(() => {
+                    playAlarmSound();
+                    setInterval(playAlarmSound, 7 * 24 * 60 * 60 * 1000);
+                }, delay);
+            }
+        }
+
+        function updateAlarmsList() {
+            const alarmsList = document.getElementById('alarmsList');
+            alarmsList.innerHTML = '';
+            alarms.forEach((dayAlarms, dayIndex) => {
+                dayAlarms.forEach(alarm => {
+                    const alarmItem = document.createElement('div');
+                    alarmItem.className = 'alarm-item';
+                    alarmItem.innerHTML = `
+                        <span>${days[alarm.day]} - ${alarm.hour}:${alarm.minute}</span>
+                        <button class="delete-btn" onclick="deleteAlarm(${alarm.day}, ${alarm.id})">Sil</button>
+                    `;
+                    alarmsList.appendChild(alarmItem);
+                });
+            });
+        }
+
+        function deleteAlarm(day, id) {
+            alarms[day] = alarms[day].filter(alarm => alarm.id !== id);
+            localStorage.setItem('alarms', JSON.stringify(alarms));
+            updateAlarmsList();
+        }
+
+        function playAlarmSound() {
+            const alarmSound = document.getElementById('alarmSound');
+            alarmSound.currentTime = 0;
+            alarmSound.play();
+
+            setTimeout(() => {
+                alarmSound.pause();
+                alarmSound.currentTime = 0;
+            }, 30000); // 30 saniye
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const formattedTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('liveClock').innerText = formattedTime;
+        }
+
+        setInterval(updateClock, 1000); 
+        createAlarmSections();
+    </script>
+</body>
+</html>

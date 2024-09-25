@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Huzur Enderun</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: white;
+            color: black;
+        }
+        header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(144, 238, 144, 0.9);
+        }
+        .toggle-nav {
+            background-color: rgba(76, 175, 80, 0.7);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+        nav {
+            display: flex;
+            gap: 30px;
+            transition: max-height 0.5s ease;
+            overflow: hidden;
+            max-height: 0;
+        }
+        nav.open {
+            max-height: 200px;
+        }
+        nav a, nav button {
+            color: black;
+            text-decoration: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        nav a:hover, nav button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        main {
+            display: flex;
+            flex: 1;
+            margin-top: 20px;
+            position: relative;
+            gap: 20px;
+        }
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            flex: 2;
+            margin-top: 200px;
+        }
+        .date-time-box {
+            margin: 10px 0;
+            font-size: 18px;
+            background-color: rgba(0, 123, 255, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            width: 300px;
+            position: absolute;
+            left: 20px;
+            top: 20px;
+        }
+        #time {
+            font-size: 30px;
+        }
+        .weather-box {
+            margin: -70px 0;
+            font-size: 18px;
+            background-color: rgba(135, 206, 235, 0.7);
+            color: black;
+            padding: 42px;
+            border-radius: 5px;
+            width: 300px;
+            position: absolute;
+            left: 400px;
+            top: 100px; /* Tarih ve saat kutusunun altına yerleştir */
+        }
+        .slideshow-wrapper {
+            position: absolute;
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 500px;  
+            height: 800px; 
+            overflow: hidden;
+            z-index: 1;
+        }
+        .slideshow-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .slideshow-container img.mySlides {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.4); 
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; 
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; 
+            text-align: center;
+        }
+        input {
+            width: 80%;
+            padding: 5px;
+            margin: 5px 0;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: rgba(76, 175, 80, 1);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: rgba(76, 175, 80, 0.8);
+        }
+        .slide-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .slide-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .slide-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+        .delete-slide-btn {
+            background-color: rgba(255, 0, 0, 1);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        
+
+        /* Günlük Program Modalı */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.4); 
+    padding-top: 60px;
+}
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; 
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; 
+    text-align: center;
+}
+input {
+    width: 80%;
+    padding: 5px;
+    margin: 5px 0;
+}
+
+
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background-color: white;
+        color: black;
+    }
+    /* Diğer stiller... */
+
+
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto; /* Üstten biraz boşluk ver */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; 
+        max-width: 500px; /* Maksimum genişlik ekleyin */
+        text-align: center;
+    }
+
+    #program-list {
+    margin-top: 20px; /* Hava durumu kutusunun altında biraz boşluk bırak */
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.9); /* Arka plan rengi */
+    border-radius: 5px; /* Köşeleri yuvarlaştır */
+}
+.footer {
+    position: absolute;
+    bottom: 20px; /* Alt kenardan 20px boşluk */
+    left: 20px; /* Sol kenardan 20px boşluk */
+    color: rgb(0, 0, 0); /* Yazı rengi */
+    font-size: 14px; /* Yazı boyutu */
+}
+
+</style>
+
+    </style>
+</head>
+<body>
+    <div style="text-align: center; margin: 20px; font-size: 18px; color: gray;">
+        DEMO'DUR GERÇEĞİ YANSITMAZ 
+    </div>
+    
+<header>
+    <button class="toggle-nav">Menüyü Aç/Kapa</button>
+    <nav id="navbar">
+        <a href="#" id="small-slide-btn">Slayt Ekle</a>
+        <button id="imam-add-btn">İmam Ekle</button>
+        <button id="muazzin-add-btn">Müezzin Ekle</button>
+        <button id="producers-link">Yapımcılar</button>
+        <button id="program-add-btn">Günün Programını Ekle</button>
+
+    </nav>
+</header>
+
+<main>
+    <div class="date-time-box">
+        <p id="time"></p>
+        <p id="current-day"></p>
+        <p id="date"></p>
+    </div>
+    
+    <div class="weather-box" id="weather-box">
+        <h4>Hava Durumu:</h4>
+        <p id="weather-info">Yükleniyor...</p>
+    </div>
+
+
+    
+    <div class="content-wrapper">
+        <h3>GÜNÜN İMAMI:</h3>
+        <div id="added-imam-list"></div>
+        <h3>GÜNÜN MÜEZZİNİ:</h3>
+        <div id="added-muazzin-list"></div>
+    
+        <h3>GÜNÜN PROGRAMI:</h3>
+        <div id="program-list"></div> <!-- Günlük programların listeleneceği alan -->
+        
+        <div class="slideshow-wrapper">
+            <div class="slideshow-container" id="slideshow-container">
+                <!-- Slaytlar burada yüklenecek -->
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- Slayt Ekle Modalı -->
+    <div id="slide-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-slide-modal">&times;</span>
+            <h3>Slayt Ekle</h3>
+            <input type="file" id="slide-input" class="slide-input" accept="image/jpeg">
+            <button id="add-slide-btn">Ekle</button>
+            <h4>Yüklenmiş Slaytlar:</h4>
+            <div class="slide-list" id="slide-list"></div>
+        </div>
+    </div>
+
+    <!-- İmam Ekle Modalı -->
+    <div id="imam-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-imam-modal">&times;</span>
+            <h3>İmam Ekle</h3>
+            <div class="weekly-panel" id="imam-panel">
+                <h4>Haftanın Günleri</h4>
+                <div class="day-row">
+                    <span>Pazartesi:</span>
+                    <input type="text" class="imam-input" placeholder="İmam ismi">
+                </div>
+                <div class="day-row">
+                    <span>Salı:</span>
+                    <input type="text" class="imam-input" placeholder="İmam ismi">
+                </div>
+                <div class="day-row">
+                    <span>Çarşamba:</span>
+                    <input type="text" class="imam-input" placeholder="İmam ismi">
+                </div>
+                <div class="day-row">
+                    <span>Perşembe:</span>
+                    <input type="text" class="imam-input" placeholder="İmam ismi">
+                </div>
+                <div class="day-row">
+                    <span>Cuma:</span>
+                    <input type="text" class="imam-input" placeholder="İmam ismi">
+                </div>
+                <div class="day-row">
+                    <span>Cumartesi:</span>
+                    <input type="text" class="imam-input" placeholder="İmam ismi">
+                </div>
+                <div class="day-row">
+                    <span>Pazar:</span>
+                    <input type="text" class="imam-input" placeholder="İmam ismi">
+                </div>
+            </div>
+            <button id="add-imam-btn">Ekle</button>
+        </div>
+    </div>
+
+
+    <!-- Müezzin Ekle Modalı -->
+    <div id="muazzin-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-muazzin-modal">&times;</span>
+            <h3>Müezzin Ekle</h3>
+            <div class="weekly-panel" id="muazzin-panel">
+                <h4>Haftanın Günleri</h4>
+                <div class="day-row">
+                    <span>Pazartesi:</span>
+                    <input type="text" class="muazzin-input" placeholder="Müezzin ismi">
+                </div>
+                <div class="day-row">
+                    <span>Salı:</span>
+                    <input type="text" class="muazzin-input" placeholder="Müezzin ismi">
+                </div>
+                <div class="day-row">
+                    <span>Çarşamba:</span>
+                    <input type="text" class="muazzin-input" placeholder="Müezzin ismi">
+                </div>
+                <div class="day-row">
+                    <span>Perşembe:</span>
+                    <input type="text" class="muazzin-input" placeholder="Müezzin ismi">
+                </div>
+                <div class="day-row">
+                    <span>Cuma:</span>
+                    <input type="text" class="muazzin-input" placeholder="Müezzin ismi">
+                </div>
+                <div class="day-row">
+                    <span>Cumartesi:</span>
+                    <input type="text" class="muazzin-input" placeholder="Müezzin ismi">
+                </div>
+                <div class="day-row">
+                    <span>Pazar:</span>
+                    <input type="text" class="muazzin-input" placeholder="Müezzin ismi">
+                </div>
+            </div>
+            <button id="add-muazzin-btn">Ekle</button>
+        </div>
+
+    </div>
+
+    <!-- Günlük Program Ekle Modalı -->
+<div id="program-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="close-program-modal">&times;</span>
+        <h3>GÜNLÜK PROGRAM EKLE</h3>
+        <input type="text" id="program-input" placeholder="Program adı">
+        <input type="time" id="program-time">
+        <button id="add-program-btn">Ekle</button>
+        <div class="program-list" id="program-list"></div>
+    </div>
+</div>
+<div class="footer">
+    <p>H. Bilal Kaymaz</p>
+    <p>Eren Gök</p>
+    <p>M. Kamil Sayyol</p>
+</div>
+
+</main>
+
+<script>
+    // Tarih ve Saati Güncelle
+    function updateDateTime() {
+        const now = new Date();
+        document.getElementById('date').innerText = now.toLocaleDateString('tr-TR');
+        document.getElementById('current-day').innerText = now.toLocaleString('tr-TR', { weekday: 'long' });
+        document.getElementById('time').innerText = now.toLocaleTimeString('tr-TR');
+        loadNames(); // İsimleri güncelle
+    }
+
+    setInterval(updateDateTime, 1000);
+
+    // Hava durumu bilgisini yükle
+    async function loadWeather() {
+        try {
+            const response = await fetch('https://www.accuweather.com/tr/tr/adana/316649/daily-weather-forecast/316649');
+            const data = await response.json();
+            const weatherInfo = `Sıcaklık: ${data.main.temp} °C, ${data.weather[0].description}`;
+            document.getElementById('weather-info').innerText = weatherInfo;
+        } catch (error) {
+            console.error('Hava durumu yüklenemedi:', error);
+        }
+    }
+
+    setInterval(loadWeather, 1800000); // Her 30 dakikada bir güncelle
+    loadWeather(); // Sayfa yüklendiğinde hava durumunu yükle
+
+    // İmam ve Müezzin isimlerini localStorage'dan yükle
+    function loadNames() {
+        const savedImams = JSON.parse(localStorage.getItem('imams')) || {};
+        const savedMuazzins = JSON.parse(localStorage.getItem('muazzins')) || {};
+        
+        const dayOfWeek = new Date().getDay(); // 0: Pazar, 1: Pazartesi, ... 6: Cumartesi
+        const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+
+        document.getElementById('added-imam-list').innerHTML = savedImams[days[dayOfWeek]] || 'İmam yok';
+        document.getElementById('added-muazzin-list').innerHTML = savedMuazzins[days[dayOfWeek]] || 'Müezzin yok';
+    }
+
+    // Slaytları yükle
+    function loadSlides() {
+        const slides = JSON.parse(localStorage.getItem('slides')) || [];
+        const slideshowContainer = document.getElementById('slideshow-container');
+        const slideList = document.getElementById('slide-list');
+        slideshowContainer.innerHTML = '';
+        slideList.innerHTML = '';
+
+        slides.forEach((slide, index) => {
+            const img = document.createElement('img');
+            img.className = 'mySlides';
+            img.src = slide;
+            slideshowContainer.appendChild(img);
+            
+            // Slayt silme butonu
+            const slideItem = document.createElement('div');
+            slideItem.className = 'slide-item';
+            const slideImage = document.createElement('img');
+            slideImage.src = slide;
+            slideItem.appendChild(slideImage);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-slide-btn';
+            deleteBtn.innerText = 'Sil';
+            deleteBtn.onclick = () => deleteSlide(index);
+            slideItem.appendChild(deleteBtn);
+
+            slideList.appendChild(slideItem);
+        });
+        showSlides();
+    }
+
+    // Slayt silme fonksiyonu
+    function deleteSlide(index) {
+        const slides = JSON.parse(localStorage.getItem('slides')) || [];
+        slides.splice(index, 1);
+        localStorage.setItem('slides', JSON.stringify(slides));
+        loadSlides(); // Yeni slayt listesini yükle
+    }
+
+    // Slayt ekleme fonksiyonu
+    document.getElementById('add-slide-btn').addEventListener('click', () => {
+        const slideInput = document.getElementById('slide-input');
+        const file = slideInput.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const imgSrc = e.target.result;
+                const slides = JSON.parse(localStorage.getItem('slides')) || [];
+                slides.push(imgSrc);
+                localStorage.setItem('slides', JSON.stringify(slides));
+
+                loadSlides(); // Yeni slaytı yükle
+                slideInput.value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // İmam ekleme fonksiyonu
+    document.getElementById('add-imam-btn').addEventListener('click', () => {
+        const inputs = document.querySelectorAll('.imam-input');
+        const savedImams = JSON.parse(localStorage.getItem('imams')) || {};
+
+        inputs.forEach((input, index) => {
+            const dayName = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'][index];
+            if (input.value) {
+                savedImams[dayName] = input.value;
+            }
+        });
+
+        localStorage.setItem('imams', JSON.stringify(savedImams));
+        loadNames(); // İsimleri yeniden yükle
+    });
+
+    // Müezzin ekleme fonksiyonu
+    document.getElementById('add-muazzin-btn').addEventListener('click', () => {
+        const inputs = document.querySelectorAll('.muazzin-input');
+        const savedMuazzins = JSON.parse(localStorage.getItem('muazzins')) || {};
+
+        inputs.forEach((input, index) => {
+            const dayName = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'][index];
+            if (input.value) {
+                savedMuazzins[dayName] = input.value;
+            }
+        });
+
+        localStorage.setItem('muazzins', JSON.stringify(savedMuazzins));
+        loadNames(); // İsimleri yeniden yükle
+    });
+
+    // Menü açma/kapatma
+    const toggleNavButton = document.querySelector('.toggle-nav');
+    const navbar = document.getElementById('navbar');
+    toggleNavButton.addEventListener('click', () => {
+        navbar.classList.toggle('open');
+    });
+
+    // Slayt ekleme butonu
+    document.getElementById('small-slide-btn').addEventListener('click', () => {
+        document.getElementById('slide-modal').style.display = 'block';
+    });
+
+    document.getElementById('close-slide-modal').addEventListener('click', () => {
+        document.getElementById('slide-modal').style.display = 'none';
+    });
+
+    // İmam Ekle butonu
+    document.getElementById('imam-add-btn').addEventListener('click', () => {
+        document.getElementById('imam-modal').style.display = 'block';
+    });
+
+    document.getElementById('close-imam-modal').addEventListener('click', () => {
+        document.getElementById('imam-modal').style.display = 'none';
+    });
+
+    // Müezzin Ekle butonu
+    document.getElementById('muazzin-add-btn').addEventListener('click', () => {
+        document.getElementById('muazzin-modal').style.display = 'block';
+    });
+
+    document.getElementById('close-muazzin-modal').addEventListener('click', () => {
+        document.getElementById('muazzin-modal').style.display = 'none';
+    });
+
+    // Slaytları göster
+    let slideIndex = 0;
+
+    function showSlides() {
+        const slides = document.getElementsByClassName("mySlides");
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";  
+        }
+        slideIndex++;
+        if (slideIndex > slides.length) {
+            slideIndex = 1; 
+        }
+        if (slides.length > 0) {
+            slides[slideIndex - 1].style.display = "block";  
+        }
+        setTimeout(showSlides, 10000); // Her 5 saniyede bir slayt değiştir
+    }
+
+    updateDateTime(); // Sayfa yüklendiğinde tarih ve saat bilgilerini güncelle
+    loadSlides(); // Sayfa yüklendiğinde slaytları yükle
+
+    const programList = document.getElementById('program-list');
+
+// Günlük programları yükle
+function loadPrograms() {
+    const programs = JSON.parse(localStorage.getItem('programs')) || {};
+    const today = new Date().toLocaleDateString('tr-TR');
+
+    programList.innerHTML = '';
+    if (programs[today]) {
+        programs[today].forEach((program, index) => {
+            const programItem = document.createElement('div');
+            programItem.className = 'program-item';
+            programItem.innerHTML = `<span>${program.time} - ${program.name}</span>`;
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-program-btn';
+            deleteBtn.innerText = 'Sil';
+            deleteBtn.onclick = () => deleteProgram(today, index);
+            programItem.appendChild(deleteBtn);
+            programList.appendChild(programItem);
+        });
+    }
+}
+
+// Program ekleme fonksiyonu
+document.getElementById('add-program-btn').addEventListener('click', () => {
+    const programInput = document.getElementById('program-input').value;
+    const programTime = document.getElementById('program-time').value;
+
+    if (programInput && programTime) {
+        const today = new Date().toLocaleDateString('tr-TR');
+        const programs = JSON.parse(localStorage.getItem('programs')) || {};
+
+        if (!programs[today]) {
+            programs[today] = [];
+        }
+
+        programs[today].unshift({ name: programInput, time: programTime });
+        localStorage.setItem('programs', JSON.stringify(programs));
+        document.getElementById('program-input').value = '';
+        document.getElementById('program-time').value = '';
+        loadPrograms(); // Yeni programları yükle
+    }
+});
+
+// Program silme fonksiyonu
+function deleteProgram(date, index) {
+    const programs = JSON.parse(localStorage.getItem('programs')) || {};
+    programs[date].splice(index, 1);
+
+    if (programs[date].length === 0) {
+        delete programs[date];
+    }
+
+    localStorage.setItem('programs', JSON.stringify(programs));
+    loadPrograms(); // Güncellenmiş programları yükle
+}
+
+// Günlük programları güncelle
+updateDateTime(); // Sayfa yüklendiğinde tarih ve saat bilgilerini güncelle
+loadPrograms(); // Sayfa yüklendiğinde günlük programları yükle
+
+// Program Ekle butonu
+document.getElementById('program-add-btn').addEventListener('click', () => {
+    document.getElementById('program-modal').style.display = 'block';
+});
+
+document.getElementById('close-program-modal').addEventListener('click', () => {
+    document.getElementById('program-modal').style.display = 'none';
+});
+
+</script>
+</body>
+</html>
